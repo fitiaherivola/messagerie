@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titre %}Connexion{% endblock %}
+{% block contenu %}
+<div style="max-width: 420px; margin: 3rem auto;">
+  <div class="card">
+    <div class="card-body" style="padding: 2.5rem 2rem;">
+      <div class="page-header" style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 1.5rem;">Connexion</h1>
+        <p>Accédez à votre messagerie sécurisée</p>
+      </div>
+
+      <form method="post">{% csrf_token %}
+        <div class="form-group">
+          <label for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="errorlist">{{ form.username.errors }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.password.id_for_label }}">Mot de passe</label>
+          {{ form.password }}
+          {% if form.password.errors %}<div class="errorlist">{{ form.password.errors }}</div>{% endif %}
+        </div>
+        <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 0.5rem;">Se connecter</button>
+      </form>
+
+      <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+        Pas de compte ? <a href="{% url 'inscription' %}" style="color: var(--accent); font-weight: 500;">Inscription</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

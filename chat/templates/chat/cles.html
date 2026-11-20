@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block titre %}Mes clés RSA{% endblock %}
+{% block contenu %}
+<div class="page-header">
+  <h1>Mes clés RSA</h1>
+  <p>Générer et gérer votre paire de clés pour le chiffrement asymétrique</p>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    {% if profil.cle_publique %}
+    <div style="margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Clé publique</h3>
+      <p class="helptext" style="margin-bottom: 0.75rem;">Partagez cette clé avec les autres utilisateurs pour qu'ils puissent vous envoyer des messages chiffrés (RSA / Hybride).</p>
+      <div class="key-display font-mono">{{ profil.cle_publique }}</div>
+      <button class="btn btn-secondary" onclick="copyPublicKey()" style="margin-top: 0.5rem;">Copier la clé publique</button>
+    </div>
+
+    <div style="margin-bottom: 1.5rem; padding: 1rem; background: #fefce8; border: 1px solid #fde047; border-radius: var(--radius-sm);">
+      <h4 style="font-size: 0.875rem; font-weight: 600; color: var(--warning); margin-bottom: 0.5rem;">⚠ Clé privée</h4>
+      <p style="font-size: 0.875rem; color: var(--text-muted);">Votre clé privée est stockée sur le serveur <strong>à des fins pédagogiques uniquement</strong>. Dans une vraie application de messagerie sécurisée (E2EE), la clé privée ne quitte jamais votre appareil.</p>
+    </div>
+
+    <form method="post">{% csrf_token %}
+      <button class="btn btn-primary" type="submit">Régénérer ma paire de clés</button>
+    </form>
+    <p class="helptext" style="margin-top: 0.75rem;">⚠ Régénérer les clés rendra illisibles les messages RSA/Hybride déjà reçus. Pourquoi ?</p>
+    {% else %}
+    <div class="empty-state" style="padding: 2rem 1.5rem;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="3"/>
+        <path d="M12 16v-8M8 12h8M8 8h8M8 16h8"/>
+      </svg>
+      <h3>Aucune clé générée</h3>
+      <p>Vous n'avez pas encore de paire de clés RSA.</p>
+      <form method="post">{% csrf_token %}
+        <button class="btn btn-primary" type="submit" style="margin-top: 1rem;">Générer ma paire de clés</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card" style="margin-top: 1.5rem;">
+  <div class="card-body">
+    <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">🔐 Comment ça marche ?</h3>
+    <ul style="font-size: 0.875rem; color: var(--text-muted); line-height: 2; padding-left: 1.25rem;">
+      <li><strong>Clé publique :</strong> Peut être partagée avec tout le monde. Elle sert à <em>chiffrer</em> les messages destinés à vous.</li>
+      <li><strong>Clé privée :</strong> Doit rester secrète. Elle seule permet de <em>déchiffrer</em> les messages chiffrés avec votre clé publique.</li>
+      <li>Algorithme : <strong>RSA-2048</strong> avec padding <strong>OAEP (SHA-256)</strong>.</li>
+      <li>Pour les messages longs, utilisez le mode <strong>Hybride</strong> (RSA + AES) qui évite la limite de taille de RSA.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function copyPublicKey() {
+  const keyText = document.querySelector('.key-display').innerText;
+  navigator.clipboard.writeText(keyText).then(() => {
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = 'Copié !';
+    btn.style.background = '#137333';
+    btn.style.color = '#fff';
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+</script>
+{% endblock %}

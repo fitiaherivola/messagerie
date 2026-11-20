@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titre %}{{ titre }}{% endblock %}
+{% block contenu %}
+<div class="page-header">
+  <h1>{{ titre }}</h1>
+  <p>{% if recus %}Messages reçus{% else %}Messages envoyés{% endif %}</p>
+</div>
+
+<div class="card">
+  {% if liste %}
+  <div style="overflow-x: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>{% if recus %}Expéditeur{% else %}Destinataire{% endif %}</th>
+          <th>Sujet</th>
+          <th>Chiffrement</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in liste %}
+        <tr class="{% if recus and not m.lu %}unread{% endif %}">
+          <td>
+            {% if recus %}{{ m.expediteur }}{% else %}{{ m.destinataire }}{% endif %}
+            {% if recus and not m.lu %}<span class="badge badge-none" style="margin-left: 0.5rem; font-size: 0.65rem;">Non lu</span>{% endif %}
+          </td>
+          <td><a href="{% url 'chat:detail' m.pk %}" style="color: var(--primary); text-decoration: none; font-weight: 500;">{{ m.sujet }}</a></td>
+          <td><span class="badge badge-{{ m.algorithme|lower }}">{{ m.algorithme }}</span></td>
+          <td style="color: var(--text-muted); font-size: 0.875rem;">{{ m.date_envoi|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+    <h3>Aucun message</h3>
+    <p>{% if recus %}Votre boîte de réception est vide.{% else %}Vous n'avez envoyé aucun message.{% endif %}</p>
+    <a href="{% url 'chat:nouveau' %}" class="btn btn-primary" style="margin-top: 1rem;">Écrire un message</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

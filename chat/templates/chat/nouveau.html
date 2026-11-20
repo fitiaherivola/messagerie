@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titre %}Nouveau message{% endblock %}
+{% block contenu %}
+<div class="page-header">
+  <h1>Nouveau message</h1>
+  <p>Envoyer un message chiffré à un autre utilisateur</p>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">{% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.destinataire.id_for_label }}">Destinataire</label>
+        {{ form.destinataire }}
+        {% if form.destinataire.errors %}<div class="errorlist">{{ form.destinataire.errors }}</div>{% endif %}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.sujet.id_for_label }}">Sujet</label>
+        {{ form.sujet }}
+        {% if form.sujet.errors %}<div class="errorlist">{{ form.sujet.errors }}</div>{% endif %}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.texte.id_for_label }}">Message</label>
+        {{ form.texte }}
+        {% if form.texte.errors %}<div class="errorlist">{{ form.texte.errors }}</div>{% endif %}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.algorithme.id_for_label }}">Mode de chiffrement</label>
+        {{ form.algorithme }}
+        {% if form.algorithme.errors %}<div class="errorlist">{{ form.algorithme.errors }}</div>{% endif %}
+        <p class="helptext">
+          <strong>Explications :</strong><br>
+          <span class="badge badge-none">Aucun</span> — Texte en clair (pas de confidentialité)<br>
+          <span class="badge badge-aes">AES</span> — Clé symétrique partagée (confidentialité, même clé pour tous)<br>
+          <span class="badge badge-rsa">RSA</span> — Clé publique du destinataire (seul lui peut lire)<br>
+          <span class="badge badge-hybride">Hybride</span> — RSA + AES (recommandé pour messages longs)
+        </p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Envoyer</button>
+        <a href="{% url 'chat:boite_reception' %}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 1.5rem;">
+  <div class="card-body">
+    <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">💡 Conseils</h3>
+    <ul style="font-size: 0.875rem; color: var(--text-muted); line-height: 2; padding-left: 1.25rem;">
+      <li>Pour <strong>RSA</strong> et <strong>Hybride</strong>, le destinataire doit avoir généré ses clés (page <a href="{% url 'chat:mes_cles' %}">Mes clés</a>).</li>
+      <li>Le mode <strong>Hybride</strong> combine la rapidité d'AES pour le message et la sécurité de RSA pour l'échange de clé.</li>
+      <li>L'intégrité (empreinte SHA-256) est vérifiée automatiquement à la lecture.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

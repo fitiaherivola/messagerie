@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block titre %}{{ msg.sujet }}{% endblock %}
+{% block contenu %}
+<div class="page-header">
+  <h1>{{ msg.sujet }}</h1>
+  <p>
+    De <strong>{{ msg.expediteur }}</strong> à <strong>{{ msg.destinataire }}</strong> —
+    {{ msg.date_envoi|date:"d/m/Y à H:i" }} —
+    <span class="badge badge-{{ msg.algorithme|lower }}">{{ msg.get_algorithme_display }}</span>
+  </p>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 600;">
+        Message {% if r.dechiffre %}déchiffré{% else %}<span style="color: var(--danger);">(non déchiffré)</span>{% endif %}
+      </h3>
+    </div>
+
+    {% if r.erreur %}
+    <div class="flash error">{{ r.erreur }}</div>
+    {% endif %}
+
+    <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; min-height: 120px; white-space: pre-wrap; word-break: break-word; font-family: 'Inter', system-ui, sans-serif; font-size: 0.9375rem; line-height: 1.7;">{{ r.texte }}</div>
+
+    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+      <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <span style="font-weight: 500; color: var(--text-muted);">Intégrité :</span>
+        {% if r.integrite == "OK" %}
+        <span class="status-indicator status-ok">✔ OK — L'empreinte correspond</span>
+        {% elif r.integrite == "ALTÉRÉ" %}
+        <span class="status-indicator status-altered">✘ ALTÉRÉ — L'empreinte ne correspond pas !</span>
+        {% else %}
+        <span class="status-indicator status-unverified">? Non vérifiée</span>
+        {% endif %}
+      </div>
+      {% if r.integrite == "ALTÉRÉ" %}
+      <p class="helptext" style="margin-top: 0.5rem; color: var(--danger);">⚠ Ce message a été modifié après son envoi. L'intégrité n'est pas garantie.</p>
+      {% elif r.integrite == "NON VÉRIFIÉ" %}
+      <p class="helptext" style="margin-top: 0.5rem;">L'empreinte n'a pas pu être vérifiée (hachage non implémenté ou message non déchiffré).</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card details-block" style="margin-top: 1.5rem;">
+  <div class="card-body">
+    <summary><b>Ce qui est réellement stocké en base de données</b></summary>
+    <div style="margin-top: 1rem;">
+      <p style="font-weight: 500; margin-bottom: 0.5rem; font-size: 0.875rem;">Contenu (base64) :</p>
+      <pre class="font-mono">{{ msg.contenu }}</pre>
+
+      {% if msg.cle_chiffree %}
+      <p style="font-weight: 500; margin: 1rem 0 0.5rem; font-size: 0.875rem;">Clé AES de session chiffrée en RSA (base64) :</p>
+      <pre class="font-mono">{{ msg.cle_chiffree }}</pre>
+      {% endif %}
+
+      <p style="font-weight: 500; margin: 1rem 0 0.5rem; font-size: 0.875rem;">Empreinte SHA-256 (hex) :</p>
+      <pre class="font-mono">{{ msg.empreinte|default:"(aucune — hachage non calculé)" }}</pre>
+    </div>
+  </div>
+</div>
+
+{% if msg.destinataire == user %}
+<div class="card" style="margin-top: 1.5rem; border-color: #fef08a; background: #fefce8;">
+  <div class="card-body">
+    <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--warning);">🧪 Simulation d'attaque</h3>
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Vous jouez le rôle d'un attaquant ayant accès à la base de données. Modifiez le contenu stocké pour observer l'effet sur le déchiffrement et la vérification d'intégrité.</p>
+    <a href="{% url 'chat:alterer' msg.pk %}" class="btn btn-secondary">Simuler une altération</a>
+  </div>
+</div>
+{% endif %}
+
+<div class="actions" style="margin-top: 1.5rem;">
+  <a href="{% if recus %}{% url 'chat:boite_reception' %}{% else %}{% url 'chat:envoyes' %}{% endif %}" class="btn btn-secondary">← Retour à la liste</a>
+</div>
+{% endblock %}

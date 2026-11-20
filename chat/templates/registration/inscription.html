@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titre %}Inscription{% endblock %}
+{% block contenu %}
+<div style="max-width: 420px; margin: 3rem auto;">
+  <div class="card">
+    <div class="card-body" style="padding: 2.5rem 2rem;">
+      <div class="page-header" style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 1.5rem;">Créer un compte</h1>
+        <p>Rejoignez CryptoMsg pour échanger des messages sécurisés</p>
+      </div>
+
+      <form method="post">{% csrf_token %}
+        <div class="form-group">
+          <label for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="errorlist">{{ form.username.errors }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.password1.id_for_label }}">Mot de passe</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}<div class="errorlist">{{ form.password1.errors }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.password2.id_for_label }}">Confirmation du mot de passe</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<div class="errorlist">{{ form.password2.errors }}</div>{% endif %}
+        </div>
+        <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 0.5rem;">Créer mon compte</button>
+      </form>
+
+      <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+        Déjà un compte ? <a href="{% url 'login' %}" style="color: var(--accent); font-weight: 500;">Se connecter</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
